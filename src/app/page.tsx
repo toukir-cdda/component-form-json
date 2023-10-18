@@ -1,14 +1,13 @@
 "use client";
-import { createUseStyles } from "react-jss";
 import { compoData } from "../../data";
-import { create } from "jss";
-import preset from "jss-preset-default";
+import { createUseStyles, jss } from "react-jss";
+import styled from "styled-components";
+import DynamicStyledComponent from "../components/DynamicStyledComponent";
 
 export default function Home() {
   const { templates, available_media_devices } = compoData;
-  const jss = create();
-  jss.setup(preset());
-
+  // const jss = create();
+  // jss.setup(preset());
   // const sheet = jss.createStyleSheet({
 
   //   [`@media (min-width: ${minWidth}px)`]: {
@@ -62,8 +61,6 @@ export default function Home() {
       children,
     } = component;
     const { styleMedia } = attributes;
-    const { desktop, laptop, mobile, tablet } = styleMedia;
-    // console.log(styleMedia);
     const dex = jss
       .createStyleSheet({
         // //desktop
@@ -86,18 +83,45 @@ export default function Home() {
           styleMedia.tablet,
       })
       .attach();
-    // const sheet = jss.createStyleSheet(styleMedia.tablet).attach();
-    console.log(dex);
+
+    // const Title = styled.Tag({
+    //   fontSize: "1.5em",
+    //   textAlign: "center",
+    //   color: "palevioletred",
+    // });
+
+    // console.log(Tag);
+
     return (
       <>
+        {/* <Title>Hi</Title> */}
+
         {Tag === "img" ? (
           <Tag key={id} {...attributes} className={dex.classes.style} />
         ) : (
-          <Tag {...attributes} key={id} className={dex.classes.style}>
+          // <Tag {...attributes} key={id} className={dex.classes.style}>
+          //   {static_content}
+          //   {children && children.map((child) => renderComponent(child))}
+          // </Tag>
+          <DynamicStyledComponent
+            as={Tag}
+            additionalStyles={{
+              [`@media (min-width: ${available_media_devices.styleMedia.desktop.minResulation}) `]:
+                styleMedia.desktop.style,
+              //laptop
+              [`@media (min-width: ${available_media_devices.styleMedia.laptop.minResulation}) and (max-width: ${available_media_devices.styleMedia.laptop.maxResulation})`]:
+                styleMedia.laptop.style,
+              //mobile
+              [`@media (max-width: ${available_media_devices.styleMedia.mobile.maxResulation})`]:
+                styleMedia.mobile.style,
+              //tablet
+              [`@media (min-width: ${available_media_devices.styleMedia.tablet.minResulation}) and (max-width: ${available_media_devices.styleMedia.tablet.maxResulation})`]:
+                styleMedia.tablet.style,
+            }}
+          >
             {static_content}
-            {/* {component?.template_author} */}
             {children && children.map((child) => renderComponent(child))}
-          </Tag>
+          </DynamicStyledComponent>
         )}
       </>
     );
