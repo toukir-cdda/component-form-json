@@ -1,33 +1,23 @@
 "use client";
-import { compoData } from "../../data";
-import { createUseStyles, jss } from "react-jss";
-import styled from "styled-components";
+import { ContentType, DataProps, compoData } from "../../data";
 import DynamicStyledComponent from "../components/DynamicStyledComponent";
+import { v4 as uuidv4 } from "uuid";
+import { Fragment } from "react";
 
 export default function Home() {
   const { templates, available_media_devices } = compoData;
-  // const jss = create();
-  // jss.setup(preset());
-  // const sheet = jss.createStyleSheet({
-
-  //   [`@media (min-width: ${minWidth}px)`]: {
-  //       color: 'red',
-  //     },
-
-  //   }
-  // }).attach();
-  //find parent children
-  const modifiedData = (templates) => {
+  //find parent and children
+  const modifiedData = (templates: DataProps[]) => {
     const modifiedData = [];
 
     for (const template of templates) {
       const { elements, ...others } = template;
 
-      const findChildren = (parentId) => {
+      const findChildren = (parentId: string | null) => {
         const children = [];
         for (const item of elements) {
           if (item.parent_id === parentId) {
-            const childItem = { ...item, children: findChildren(item.id) };
+            const childItem: any = { ...item, children: findChildren(item.id) };
             children.push(childItem);
           }
         }
@@ -51,7 +41,33 @@ export default function Home() {
 
   const newModifiedData = modifiedData(templates);
 
-  const renderComponent = (component) => {
+  const renderComponent = (component: {
+    children: any;
+    template_name?: string;
+    template_description?: string;
+    template_author?: string;
+    template_version?: string;
+    title?: string;
+    description?: string;
+    slug?: string;
+    id: any;
+    parent?: string;
+    status?: "draft" | "published" | "deleted" | "archived" | undefined;
+    meta?: { title: string };
+    permission?:
+      | { guest: boolean; login: boolean; role: string | null }
+      | undefined;
+    layout?: string;
+    content?: ContentType[] | undefined;
+    faqs?: string;
+    tour?: {}[] | undefined;
+    functions?: { add: (a: number, b: number) => number };
+    parent_id?: string | null;
+    tag: any;
+    attributes: any;
+    static_content: any;
+    dynamic_content: any;
+  }) => {
     const {
       id,
       tag: Tag,
@@ -60,52 +76,34 @@ export default function Home() {
       static_content,
       children,
     } = component;
-    const { styleMedia } = attributes;
-    const dex = jss
-      .createStyleSheet({
-        // //desktop
-        "@global": {
-          body: {
-            margin: 0,
-            padding: 0,
-          },
-        },
-        [`@media (min-width: ${available_media_devices.styleMedia.desktop.minResulation}) `]:
-          styleMedia.desktop,
-        //laptop
-        [`@media (min-width: ${available_media_devices.styleMedia.laptop.minResulation}) and (max-width: ${available_media_devices.styleMedia.laptop.maxResulation})`]:
-          styleMedia.laptop,
-        //mobile
-        [`@media (max-width: ${available_media_devices.styleMedia.mobile.maxResulation})`]:
-          styleMedia.mobile,
-        //tablet
-        [`@media (min-width: ${available_media_devices.styleMedia.tablet.minResulation}) and (max-width: ${available_media_devices.styleMedia.tablet.maxResulation})`]:
-          styleMedia.tablet,
-      })
-      .attach();
-
-    // const Title = styled.Tag({
-    //   fontSize: "1.5em",
-    //   textAlign: "center",
-    //   color: "palevioletred",
-    // });
-
-    // console.log(Tag);
+    const { styleMedia, ...otherAttributes } = attributes;
 
     return (
-      <>
-        {/* <Title>Hi</Title> */}
-
+      <Fragment key={uuidv4()}>
         {Tag === "img" ? (
-          <Tag key={id} {...attributes} className={dex.classes.style} />
-        ) : (
-          // <Tag {...attributes} key={id} className={dex.classes.style}>
-          //   {static_content}
-          //   {children && children.map((child) => renderComponent(child))}
-          // </Tag>
           <DynamicStyledComponent
+            key={uuidv4()}
             as={Tag}
-            additionalStyles={{
+            {...otherAttributes}
+            theme={{
+              [`@media (min-width: ${available_media_devices.styleMedia.desktop.minResulation}) `]:
+                styleMedia.desktop.style,
+              //laptop
+              [`@media (min-width: ${available_media_devices.styleMedia.laptop.minResulation}) and (max-width: ${available_media_devices.styleMedia.laptop.maxResulation})`]:
+                styleMedia.laptop.style,
+              //mobile
+              [`@media (max-width: ${available_media_devices.styleMedia.mobile.maxResulation})`]:
+                styleMedia.mobile.style,
+              //tablet
+              [`@media (min-width: ${available_media_devices.styleMedia.tablet.minResulation}) and (max-width: ${available_media_devices.styleMedia.tablet.maxResulation})`]:
+                styleMedia.tablet.style,
+            }}
+          />
+        ) : (
+          <DynamicStyledComponent
+            key={uuidv4()}
+            as={Tag}
+            theme={{
               [`@media (min-width: ${available_media_devices.styleMedia.desktop.minResulation}) `]:
                 styleMedia.desktop.style,
               //laptop
@@ -120,13 +118,48 @@ export default function Home() {
             }}
           >
             {static_content}
-            {children && children.map((child) => renderComponent(child))}
+            {children &&
+              children.map(
+                (child: {
+                  children: any;
+                  template_name?: string | undefined;
+                  template_description?: string | undefined;
+                  template_author?: string | undefined;
+                  template_version?: string | undefined;
+                  title?: string | undefined;
+                  description?: string | undefined;
+                  slug?: string | undefined;
+                  id: any;
+                  parent?: string | undefined;
+                  status?:
+                    | "draft"
+                    | "published"
+                    | "deleted"
+                    | "archived"
+                    | undefined;
+                  meta?: { title: string } | undefined;
+                  permission?:
+                    | { guest: boolean; login: boolean; role: string | null }
+                    | undefined;
+                  layout?: string | undefined;
+                  content?: ContentType[] | undefined;
+                  faqs?: string | undefined;
+                  tour?: {}[] | undefined;
+                  functions?:
+                    | { add: (a: number, b: number) => number }
+                    | undefined;
+                  parent_id?: string | null | undefined;
+                  tag: any;
+                  attributes: any;
+                  static_content: any;
+                  dynamic_content: any;
+                }) => renderComponent(child)
+              )}
           </DynamicStyledComponent>
         )}
-      </>
+      </Fragment>
     );
   };
-
   return (
     <div> {newModifiedData.map((component) => renderComponent(component))}</div>
   );
